@@ -7,8 +7,6 @@ namespace HttpClientExtension
     public class HttpClientExt
     {
         static HttpClient _client = new HttpClient();
-        const string _authorization = "Authorization";
-        const string _soapAction = "SOAPAction";
         const string _contentType = "application/json";
 
         public static void InitializeHttpClient(string baseURI, List<KeyValuePair<string, string>> headers)
