@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Project>
+   <PropertyGroup>
+      <OutputPath>$(MSBuildThisFileDirectory)..\..\httpClientBuild\bin\Debug</OutputPath>
+      <IntermediateOutputPath>$(MSBuildThisFileDirectory)..\..\httpClientBuild\obj\Debug</IntermediateOutputPath>
+      <MSBuildProjectExtensionsPath>$(MSBuildThisFileDirectory)..\..\httpClientBuild\obj</MSBuildProjectExtensionsPath>
+      <StaticWebAssetsEnabled>false</StaticWebAssetsEnabled>
+   </PropertyGroup>
+</Project>
