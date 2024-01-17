@@ -13,8 +13,22 @@ namespace Program
             KeyValuePair<string, string> header2 = new KeyValuePair<string, string>("b","2");
             headers.Add(header1);
             headers.Add(header2);
-            HttpClientExtension.HttpClientExt.InitializeHttpClient("https://www.google.com", headers);
-            await HttpClientExtension.HttpClientExt.SendRequest(HttpMethod.Get, "");
+
+            HttpClient httpClient = new HttpClient()
+            {
+               BaseAddress = new Uri("https://www.google.com")
+            };
+
+            foreach(KeyValuePair<string, string> header in headers)
+            {
+                httpClient.DefaultRequestHeaders.Add(header.Key, header.Value);
+            }
+
+            HttpClientExtension httpClientExtension = new HttpClientExtension()
+            {
+               _client = httpClient
+            };
+            await httpClientExtension.SendRequest(HttpMethod.Get, "");
          } 
      } 
 }

@@ -2,69 +2,58 @@ using System.Net.Http.Headers;
 using System.Text;
 using Newtonsoft.Json;
 
-namespace HttpClientExtension
+public class HttpClientExtension
 {
-    public class HttpClientExt
-    {
-        static HttpClient _client = new HttpClient();
-        const string _contentType = "application/json";
+    public HttpClient _client;
+    private const string _contentType = "application/json";
 
-        public static void InitializeHttpClient(string baseURI, List<KeyValuePair<string, string>> headers)
+    public async Task<HttpResponseMessage> SendRequest (HttpMethod method, string route)
+    {
+        return await SendRequest(method, route, null);
+    }
+    public async Task<HttpResponseMessage> SendRequestData (HttpMethod method, string route, object requestData)
+    {
+        return await SendRequest(method, route, requestData);
+    }
+    private async Task<HttpResponseMessage> SendRequest (HttpMethod method, string route, object requestData)
+    {
+        try
         {
-            _client.BaseAddress = new Uri(baseURI);
-            foreach(KeyValuePair<string, string> header in headers)
+            switch (method)
             {
-                _client.DefaultRequestHeaders.Add(header.Key, header.Value);
+                case HttpMethod get when get == HttpMethod.Get:
+                    return _client.GetAsync(route).Result;
+                case HttpMethod post when post == HttpMethod.Post:
+                    HttpContent postData = GetRequestData(requestData);
+                    return await _client.PostAsync(route, postData);
+                case HttpMethod put when put == HttpMethod.Put:
+                    HttpContent putData = GetRequestData(requestData);
+                    return _client.PutAsync(route, putData).Result;
+                case HttpMethod patch when patch == HttpMethod.Patch:
+                    HttpContent patchData = GetRequestData(requestData);
+                    return _client.PatchAsync(route, patchData).Result;
+                default:
+                    throw new NotImplementedException();
             }
         }
-        public static async Task<HttpResponseMessage> SendRequest (HttpMethod method, string route)
+        catch (Exception e)
         {
-            return await SendRequest(method, route, null);
+            throw new Exception("Error with response " + route + ". " + e.Message);
         }
-        public static async Task<HttpResponseMessage> SendRequestData (HttpMethod method, string route, object requestData)
+    }
+    private HttpContent GetRequestData (object requestData)
+    {
+        try
         {
-            return await SendRequest(method, route, requestData);
+            HttpContent httpData;
+            string data = JsonConvert.SerializeObject(requestData);
+            httpData = new StringContent(data, Encoding.UTF8, _contentType);
+            httpData.Headers.ContentType = new MediaTypeHeaderValue(_contentType);
+            return httpData;
         }
-        private static async Task<HttpResponseMessage> SendRequest (HttpMethod method, string route, object requestData)
+        catch (Exception e)
         {
-            try
-            {
-                switch (method)
-                {
-                    case HttpMethod get when get == HttpMethod.Get:
-                        return _client.GetAsync(route).Result;
-                    case HttpMethod post when post == HttpMethod.Post:
-                        HttpContent postData = GetRequestData(requestData);
-                        return await _client.PostAsync(route, postData);
-                    case HttpMethod put when put == HttpMethod.Put:
-                        HttpContent putData = GetRequestData(requestData);
-                        return _client.PutAsync(route, putData).Result;
-                    case HttpMethod patch when patch == HttpMethod.Patch:
-                        HttpContent patchData = GetRequestData(requestData);
-                        return _client.PatchAsync(route, patchData).Result;
-                    default:
-                        throw new NotImplementedException();
-                }
-            }
-            catch (Exception e)
-            {
-                throw new Exception("Error with response " + route + ". " + e.Message);
-            }
-        }
-        static HttpContent GetRequestData (object requestData)
-        {
-            try
-            {
-                HttpContent httpData;
-                string data = JsonConvert.SerializeObject(requestData);
-                httpData = new StringContent(data, Encoding.UTF8, _contentType);
-                httpData.Headers.ContentType = new MediaTypeHeaderValue(_contentType);
-                return httpData;
-            }
-            catch (Exception e)
-            {
-                throw new Exception("Could not serialize request data " + requestData + ". " + e.Message);
-            }
+            throw new Exception("Could not serialize request data " + requestData + ". " + e.Message);
         }
     }
 }
