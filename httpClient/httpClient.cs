@@ -1,24 +1,30 @@
 using System.Net.Http.Headers;
 using System.Text;
 using Newtonsoft.Json;
+using System.Reflection;
 
 public class HttpClientExtension
 {
     public HttpClient _client;
     private const string _contentType = "application/json";
 
-    public async Task<HttpResponseMessage> SendRequest (HttpMethod method, string route)
+    public async Task<HttpResponseMessage> SendRequest (HttpMethod method, string route, object parameters)
     {
-        return await SendRequest(method, route, null);
+        return await SendRequest(method, route, null, parameters);
     }
     public async Task<HttpResponseMessage> SendRequestData (HttpMethod method, string route, object requestData)
     {
-        return await SendRequest(method, route, requestData);
+        return await SendRequest(method, route, requestData, null);
     }
-    private async Task<HttpResponseMessage> SendRequest (HttpMethod method, string route, object requestData)
+    private async Task<HttpResponseMessage> SendRequest (HttpMethod method, string route, object requestData, object parameters)
     {
         try
         {
+            if(parameters != null)
+            {
+                route = route + AppendQueryParameters(parameters);
+            }
+
             switch (method)
             {
                 case HttpMethod get when get == HttpMethod.Get:
@@ -55,5 +61,31 @@ public class HttpClientExtension
         {
             throw new Exception("Could not serialize request data " + requestData + ". " + e.Message);
         }
+    }
+    private static string AppendQueryParameters(object parameters)
+    {
+        string queryParameters = "";
+        System.Reflection.PropertyInfo[] propertyInfoList = parameters.GetType().GetProperties();
+
+        int index = 0;
+        foreach(PropertyInfo propertyInfo in propertyInfoList)
+        {
+            object parameterValue = propertyInfo.GetValue(parameters);
+
+            if(parameterValue != null)
+            {
+                if(index == 0)
+                {
+                    queryParameters = queryParameters + "?" + propertyInfo.Name + "=" + parameterValue;
+                }
+                else
+                {
+                    queryParameters = queryParameters + "&" + propertyInfo.Name + "=" + parameterValue;
+                }
+                index++;
+            }
+        }
+
+        return queryParameters;
     }
 }

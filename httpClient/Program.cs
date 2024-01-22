@@ -1,3 +1,5 @@
+using Newtonsoft.Json;
+
 namespace Program 
 { 
     class Program 
@@ -16,7 +18,7 @@ namespace Program
 
             HttpClient httpClient = new HttpClient()
             {
-               BaseAddress = new Uri("https://www.google.com")
+               BaseAddress = new Uri("https://www.google.com/")
             };
 
             foreach(KeyValuePair<string, string> header in headers)
@@ -28,7 +30,21 @@ namespace Program
             {
                _client = httpClient
             };
-            await httpClientExtension.SendRequest(HttpMethod.Get, "");
-         } 
+
+            string json = "{\"id\": null,\"league\": 1,\"season\": 2023,\"name\": null,\"code\": null,\"search\": null}";
+            object obj = JsonConvert.DeserializeObject<Parameters>(json);
+
+            await httpClientExtension.SendRequest(HttpMethod.Get, "request", obj);
+            await httpClientExtension.SendRequestData(HttpMethod.Get, "requestData", obj);
+         }
+         private class Parameters
+         {
+               public int? id {get;set;}
+               public int? league {get;set;}
+               public int? season {get;set;}
+               public string name {get;set;}
+               public string code {get;set;}
+               public string search {get;set;}
+         }
      } 
 }
