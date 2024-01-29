@@ -6,7 +6,7 @@
     <EnableDefaultContentItems>false</EnableDefaultContentItems>
     <IsPackable>true</IsPackable>
     <PackageId>jjsHttpClient</PackageId>
-    <Version>3.0.0</Version>
+    <Version>4.0.0</Version>
     <Authors>jjs</Authors>
     <Company>jjsCo</Company>
   </PropertyGroup>
